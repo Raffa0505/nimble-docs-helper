@@ -677,6 +677,16 @@ export function PdfViewer({
               </span>
             )}
           </button>
+          <button
+            onClick={handleSaveAs}
+            title="Salva con nome"
+            disabled={!originalBytes || exporting}
+            className="p-2 rounded-md hover:bg-accent text-toolbar-foreground disabled:opacity-40 flex items-center gap-1.5"
+            aria-label="Salva con nome"
+          >
+            <Save className="h-4 w-4" />
+            <span className="text-xs font-medium hidden sm:inline">Salva con nome</span>
+          </button>
           <div className="h-6 w-px bg-border mx-1" />
           <button
             onClick={closeFile}
