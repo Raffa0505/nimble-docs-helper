@@ -9,6 +9,7 @@ export async function exportAnnotatedPdf(
   options?: {
     pageOrder?: number[]; // 1-based original page numbers, in output order
     rotations?: Record<number, number>; // by original 1-based page number
+    downloadName?: string; // full filename (with or without .pdf) to override the default "-annotato" suffix
   },
 ): Promise<void> {
   const src = await PDFDocument.load(originalBytes);
