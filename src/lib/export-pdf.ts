@@ -105,8 +105,10 @@ export async function exportAnnotatedPdf(
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   const base = fileName.replace(/\.pdf$/i, "") || "documento";
+  const defaultName = `${base}-annotato.pdf`;
+  const rawName = options?.downloadName?.trim() || defaultName;
   a.href = url;
-  a.download = `${base}-annotato.pdf`;
+  a.download = /\.pdf$/i.test(rawName) ? rawName : `${rawName}.pdf`;
   document.body.appendChild(a);
   a.click();
   a.remove();
