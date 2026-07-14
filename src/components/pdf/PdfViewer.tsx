@@ -216,6 +216,29 @@ export function PdfViewer({
     }
   }, [originalBytes, annotations, fileName, pageOrder, rotations]);
 
+  const handleSaveAs = useCallback(async () => {
+    if (!originalBytes) return;
+    const base = fileName.replace(/\.pdf$/i, "") || "documento";
+    const suggested = `${base}-annotato.pdf`;
+    const chosen = window.prompt("Salva con nome:", suggested);
+    if (chosen === null) return; // user cancelled
+    const trimmed = chosen.trim();
+    if (!trimmed) return;
+    setExporting(true);
+    try {
+      await exportAnnotatedPdf(originalBytes.slice(0), annotations, fileName, {
+        pageOrder,
+        rotations,
+        downloadName: trimmed,
+      });
+    } catch (e) {
+      console.error(e);
+      setError("Errore durante il salvataggio del PDF.");
+    } finally {
+      setExporting(false);
+    }
+  }, [originalBytes, annotations, fileName, pageOrder, rotations]);
+
   useEffect(() => {
     setPageInput(String(currentPage));
   }, [currentPage]);
