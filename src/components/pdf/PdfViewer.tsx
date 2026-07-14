@@ -22,6 +22,7 @@ import {
   StickyNote,
   Type,
   Download,
+  Save,
   Star,
   Columns2,
   RotateCw,
