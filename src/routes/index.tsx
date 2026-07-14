@@ -1,24 +1,52 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { lazy, Suspense, useState } from "react";
 
-// No head() here: the home route inherits title/description/og/twitter from
-// __root.tsx, and ships no og:image so serve-time hosting can inject the
-// project's social preview (explicit og:image or latest screenshot).
+const PdfViewer = lazy(() =>
+  import("@/components/pdf/PdfViewer").then((m) => ({ default: m.PdfViewer })),
+);
+
 export const Route = createFileRoute("/")({
+  head: () => ({
+    meta: [
+      { title: "Lettore PDF" },
+      {
+        name: "description",
+        content:
+          "Lettore PDF moderno, ultra-veloce e fluido. Anteprime, indice, ricerca e modalità scura. I file rimangono sul tuo dispositivo.",
+      },
+      { property: "og:title", content: "Lettore PDF" },
+      {
+        property: "og:description",
+        content:
+          "Lettore PDF moderno, ultra-veloce e fluido. Anteprime, indice, ricerca e modalità scura. I file rimangono sul tuo dispositivo.",
+      },
+    ],
+  }),
   component: Index,
 });
 
-// IMPORTANT: Replace this placeholder. See ./README.md for routing conventions.
 function Index() {
+  const [split, setSplit] = useState(false);
+  const toggleSplit = () => setSplit((s) => !s);
+
   return (
-    <div
-      className="flex min-h-screen items-center justify-center"
-      style={{ backgroundColor: "#fcfbf8" }}
+    <Suspense
+      fallback={
+        <div className="h-screen flex items-center justify-center bg-viewer-bg text-muted-foreground">
+          Caricamento…
+        </div>
+      }
     >
-      <img
-        data-lovable-blank-page-placeholder="REMOVE_THIS"
-        src="https://cdn.gpteng.co/blank-app-v1.svg"
-        alt="Your app will live here!"
-      />
-    </div>
+      <div className={`h-screen w-screen flex ${split ? "flex-row" : ""} overflow-hidden`}>
+        <div className={split ? "w-1/2 h-full border-r border-border" : "w-full h-full"}>
+          <PdfViewer onToggleSplit={toggleSplit} splitActive={split} />
+        </div>
+        {split && (
+          <div className="w-1/2 h-full">
+            <PdfViewer onToggleSplit={toggleSplit} splitActive={split} />
+          </div>
+        )}
+      </div>
+    </Suspense>
   );
 }
