@@ -9,6 +9,7 @@ export async function exportAnnotatedPdf(
   options?: {
     pageOrder?: number[]; // 1-based original page numbers, in output order
     rotations?: Record<number, number>; // by original 1-based page number
+    downloadName?: string; // full filename (with or without .pdf) to override the default "-annotato" suffix
   },
 ): Promise<void> {
   const src = await PDFDocument.load(originalBytes);
@@ -104,8 +105,10 @@ export async function exportAnnotatedPdf(
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   const base = fileName.replace(/\.pdf$/i, "") || "documento";
+  const defaultName = `${base}-annotato.pdf`;
+  const rawName = options?.downloadName?.trim() || defaultName;
   a.href = url;
-  a.download = `${base}-annotato.pdf`;
+  a.download = /\.pdf$/i.test(rawName) ? rawName : `${rawName}.pdf`;
   document.body.appendChild(a);
   a.click();
   a.remove();

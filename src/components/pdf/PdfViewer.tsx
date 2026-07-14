@@ -22,6 +22,7 @@ import {
   StickyNote,
   Type,
   Download,
+  Save,
   Star,
   Columns2,
   RotateCw,
@@ -210,6 +211,29 @@ export function PdfViewer({
     } catch (e) {
       console.error(e);
       setError("Errore durante l'esportazione del PDF annotato.");
+    } finally {
+      setExporting(false);
+    }
+  }, [originalBytes, annotations, fileName, pageOrder, rotations]);
+
+  const handleSaveAs = useCallback(async () => {
+    if (!originalBytes) return;
+    const base = fileName.replace(/\.pdf$/i, "") || "documento";
+    const suggested = `${base}-annotato.pdf`;
+    const chosen = window.prompt("Salva con nome:", suggested);
+    if (chosen === null) return; // user cancelled
+    const trimmed = chosen.trim();
+    if (!trimmed) return;
+    setExporting(true);
+    try {
+      await exportAnnotatedPdf(originalBytes.slice(0), annotations, fileName, {
+        pageOrder,
+        rotations,
+        downloadName: trimmed,
+      });
+    } catch (e) {
+      console.error(e);
+      setError("Errore durante il salvataggio del PDF.");
     } finally {
       setExporting(false);
     }
@@ -652,6 +676,16 @@ export function PdfViewer({
                 {annotations.length}
               </span>
             )}
+          </button>
+          <button
+            onClick={handleSaveAs}
+            title="Salva con nome"
+            disabled={!originalBytes || exporting}
+            className="p-2 rounded-md hover:bg-accent text-toolbar-foreground disabled:opacity-40 flex items-center gap-1.5"
+            aria-label="Salva con nome"
+          >
+            <Save className="h-4 w-4" />
+            <span className="text-xs font-medium hidden sm:inline">Salva con nome</span>
           </button>
           <div className="h-6 w-px bg-border mx-1" />
           <button
