@@ -815,6 +815,8 @@ export function PdfViewer({
                   registerRef={registerPageRef}
                   tool={panActive ? "pan" : annTool}
                   highlightColor={highlightColor}
+                  inkColor={inkColor}
+                  inkSize={inkSize}
                   annotations={annotations.filter((a) => a.page === n)}
                   onAddAnnotation={addAnnotation}
                   onUpdateAnnotation={updateAnnotation}
