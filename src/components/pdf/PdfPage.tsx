@@ -19,6 +19,7 @@ interface Props {
   onAddAnnotation: (a: Annotation) => void;
   onUpdateAnnotation: (id: string, patch: Partial<Annotation>) => void;
   onDeleteAnnotation: (id: string) => void;
+  onToolConsumed?: () => void;
 }
 
 export function PdfPage({
