@@ -379,38 +379,44 @@ function TextAnnotation({
   const [dragging, setDragging] = useState(false);
   const fontPx = a.fontSize * scale;
   const wrapRef = useRef<HTMLDivElement | null>(null);
+  const currentColor: InkColor = a.color ?? "black";
 
   const getPageRect = () => {
-    // annotation layer is the parent; the page wrapper is its parent.
     const layer = wrapRef.current?.parentElement;
     return (layer ?? wrapRef.current)?.getBoundingClientRect();
   };
 
   const handleDragStart = (e: React.PointerEvent<HTMLDivElement>) => {
     if (editing) return;
-    if ((e.target as HTMLElement).closest("[data-role='resize'],[data-role='delete']")) return;
+    if ((e.target as HTMLElement).closest("[data-role='resize'],[data-role='delete'],[data-role='menu']")) return;
     const parentRect = getPageRect();
     if (!parentRect) return;
     e.stopPropagation();
-    e.preventDefault();
     (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     const startX = e.clientX;
     const startY = e.clientY;
     const startAx = a.x;
     const startAy = a.y;
-    setDragging(true);
+    let moved = false;
 
     const onMove = (ev: PointerEvent) => {
       const dx = (ev.clientX - startX) / parentRect.width;
       const dy = (ev.clientY - startY) / parentRect.height;
-      const nx = Math.max(0, Math.min(1 - a.w, startAx + dx));
-      const ny = Math.max(0, Math.min(0.999, startAy + dy));
-      onUpdate({ x: nx, y: ny });
+      if (!moved && Math.hypot(ev.clientX - startX, ev.clientY - startY) > 3) {
+        moved = true;
+        setDragging(true);
+      }
+      if (moved) {
+        const nx = Math.max(0, Math.min(1 - a.w, startAx + dx));
+        const ny = Math.max(0, Math.min(0.999, startAy + dy));
+        onUpdate({ x: nx, y: ny });
+      }
     };
     const onUp = () => {
       setDragging(false);
       window.removeEventListener("pointermove", onMove);
       window.removeEventListener("pointerup", onUp);
+      if (!moved) setEditing(true);
     };
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
@@ -429,7 +435,6 @@ function TextAnnotation({
     const onMove = (ev: PointerEvent) => {
       const dw = (ev.clientX - startX) / parentRect.width;
       const nw = Math.max(0.05, Math.min(1 - a.x, startW + dw));
-      // Scale font size vertically; feels natural for a text box.
       const dfy = (ev.clientY - startY) / scale;
       const nf = Math.max(8, Math.min(96, startFont + dfy * 0.5));
       onUpdate({ w: nw, fontSize: nf });
@@ -441,6 +446,8 @@ function TextAnnotation({
     window.addEventListener("pointermove", onMove);
     window.addEventListener("pointerup", onUp);
   };
+
+  const textColorCss = INK_COLORS[currentColor].css;
 
   return (
     <div
@@ -459,21 +466,62 @@ function TextAnnotation({
       onPointerDown={handleDragStart}
     >
       {editing ? (
-        <textarea
-          autoFocus
-          value={a.text}
-          onChange={(e) => onUpdate({ text: e.target.value })}
-          onBlur={() => setEditing(false)}
-          onPointerDown={(e) => e.stopPropagation()}
-          style={{ fontSize: fontPx, lineHeight: 1.2 }}
-          className="w-full min-h-[2em] p-1 border border-primary/60 bg-background/95 text-foreground rounded-sm resize-none focus:outline-none focus:ring-1 focus:ring-ring"
-        />
+        <>
+          <textarea
+            autoFocus
+            value={a.text}
+            onChange={(e) => onUpdate({ text: e.target.value })}
+            onBlur={() => setEditing(false)}
+            onPointerDown={(e) => e.stopPropagation()}
+            style={{ fontSize: fontPx, lineHeight: 1.2, color: textColorCss }}
+            className="w-full min-h-[2em] p-1 border border-primary/60 bg-background/95 rounded-sm resize-none focus:outline-none focus:ring-1 focus:ring-ring"
+          />
+          <div
+            data-role="menu"
+            onMouseDown={(e) => e.preventDefault()}
+            onPointerDown={(e) => e.stopPropagation()}
+            className="absolute -top-11 left-0 z-30 flex items-center gap-2 rounded-md border border-border bg-popover text-popover-foreground shadow-xl px-2 py-1"
+          >
+            <select
+              value={a.fontSize}
+              onChange={(e) => onUpdate({ fontSize: Number(e.target.value) })}
+              className="h-7 text-xs rounded border border-input bg-background px-1 focus:outline-none focus:ring-1 focus:ring-ring"
+              title="Dimensione carattere"
+            >
+              {TEXT_FONT_SIZES.map((s) => (
+                <option key={s} value={s}>
+                  {s}
+                </option>
+              ))}
+            </select>
+            <div className="flex items-center gap-1">
+              {TEXT_COLORS.map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => onUpdate({ color: c })}
+                  className={`h-5 w-5 rounded-full border ${currentColor === c ? "ring-2 ring-ring ring-offset-1 ring-offset-popover border-transparent" : "border-border"}`}
+                  style={{ background: INK_COLORS[c].css }}
+                  title={c}
+                />
+              ))}
+            </div>
+            <button
+              type="button"
+              onClick={() => onDelete()}
+              className="p-1 rounded hover:bg-accent text-muted-foreground"
+              title="Elimina"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+            </button>
+          </div>
+        </>
       ) : (
         <div
           onDoubleClick={() => setEditing(true)}
-          style={{ fontSize: fontPx, lineHeight: 1.2 }}
-          className="whitespace-pre-wrap px-1 py-0.5 rounded-sm border border-transparent group-hover:border-primary/50 group-hover:bg-primary/5 text-black select-none"
-          title="Trascina per spostare · Doppio clic per modificare · Trascina l'angolo per ridimensionare"
+          style={{ fontSize: fontPx, lineHeight: 1.2, color: textColorCss }}
+          className="whitespace-pre-wrap px-1 py-0.5 rounded-sm border border-transparent group-hover:border-primary/50 group-hover:bg-primary/5 select-none"
+          title="Clic per modificare · Trascina per spostare · Trascina l'angolo per ridimensionare"
         >
           {a.text || " "}
         </div>
