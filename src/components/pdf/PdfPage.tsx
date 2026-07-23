@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { PDFDocumentProxy, PDFPageProxy } from "pdfjs-dist";
 import { AnnotationLayer } from "./AnnotationLayer";
-import type { Annotation, HighlightColor, Tool } from "@/lib/annotations";
+import type { Annotation, HighlightColor, InkColor, Tool } from "@/lib/annotations";
 
 interface Props {
   pdf: PDFDocumentProxy;
@@ -13,6 +13,8 @@ interface Props {
   registerRef: (page: number, el: HTMLDivElement | null) => void;
   tool: Tool;
   highlightColor: HighlightColor;
+  inkColor: InkColor;
+  inkSize: number;
   annotations: Annotation[];
   onAddAnnotation: (a: Annotation) => void;
   onUpdateAnnotation: (id: string, patch: Partial<Annotation>) => void;
