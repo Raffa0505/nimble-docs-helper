@@ -213,8 +213,42 @@ export function AnnotationLayer({
       onPointerUp={handlePointerUp}
       onPointerCancel={handlePointerUp}
     >
+      {/* Ink strokes overlay (rendered as SVG). Non-interactive; eraser hit-tests
+          against annotation data on the parent layer instead. */}
+      <svg
+        className="absolute inset-0"
+        width={widthPx}
+        height={heightPx}
+        viewBox={`0 0 ${widthPx} ${heightPx}`}
+        style={{ pointerEvents: "none" }}
+      >
+        {annotations
+          .filter((a): a is Extract<Annotation, { type: "ink" }> => a.type === "ink")
+          .map((a) => (
+            <polyline
+              key={a.id}
+              points={a.points.map((p) => `${p.x * widthPx},${p.y * heightPx}`).join(" ")}
+              fill="none"
+              stroke={INK_COLORS[a.color].css}
+              strokeWidth={a.size * scale}
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+          ))}
+        {drawingPoints && drawingPoints.length > 0 && (
+          <polyline
+            points={drawingPoints.map((p) => `${p.x * widthPx},${p.y * heightPx}`).join(" ")}
+            fill="none"
+            stroke={INK_COLORS[inkColor].css}
+            strokeWidth={inkSize * scale}
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          />
+        )}
+      </svg>
 
       {annotations.map((a) => {
+
         if (a.type === "highlight") {
           const color = HIGHLIGHT_COLORS[a.color].css;
           return (
