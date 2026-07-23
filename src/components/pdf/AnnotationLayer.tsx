@@ -12,6 +12,8 @@ interface Props {
   pageHeightPt: number;
   tool: Tool;
   highlightColor: HighlightColor;
+  inkColor: InkColor;
+  inkSize: number;
   annotations: Annotation[];
   textLayerEl: HTMLElement | null;
   onAdd: (a: Annotation) => void;
