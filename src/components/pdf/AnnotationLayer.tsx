@@ -3,7 +3,7 @@ import { StickyNote, Trash2, X } from "lucide-react";
 import type { Annotation, HighlightColor, InkColor, NormRect, Tool } from "@/lib/annotations";
 import { HIGHLIGHT_COLORS, INK_COLORS, newId } from "@/lib/annotations";
 
-const TEXT_FONT_SIZES = [12, 14, 16, 20, 24, 32] as const;
+const TEXT_FONT_SIZES = [8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72] as const;
 const TEXT_COLORS: InkColor[] = ["black", "red", "blue", "green", "yellow"];
 
 
@@ -471,14 +471,24 @@ function TextAnnotation({
             autoFocus
             value={a.text}
             onChange={(e) => onUpdate({ text: e.target.value })}
-            onBlur={() => setEditing(false)}
+            onBlur={(e) => {
+              const next = e.relatedTarget as HTMLElement | null;
+              if (next && next.closest("[data-role='menu']")) return;
+              setEditing(false);
+            }}
             onPointerDown={(e) => e.stopPropagation()}
             style={{ fontSize: fontPx, lineHeight: 1.2, color: textColorCss }}
-            className="w-full min-h-[2em] p-1 border border-primary/60 bg-background/95 rounded-sm resize-none focus:outline-none focus:ring-1 focus:ring-ring"
+            className="w-full min-h-[2em] p-1 border border-primary/60 bg-transparent rounded-sm resize-none focus:outline-none focus:ring-1 focus:ring-ring"
           />
           <div
             data-role="menu"
-            onMouseDown={(e) => e.preventDefault()}
+            onMouseDown={(e) => {
+              // Prevent the textarea from blurring (which would close this menu)
+              // when clicking chrome, but let native form controls (select/option)
+              // receive their own mousedown so the dropdown works.
+              const tag = (e.target as HTMLElement).tagName;
+              if (tag !== "SELECT" && tag !== "OPTION") e.preventDefault();
+            }}
             onPointerDown={(e) => e.stopPropagation()}
             className="absolute -top-11 left-0 z-30 flex items-center gap-2 rounded-md border border-border bg-popover text-popover-foreground shadow-xl px-2 py-1"
           >
