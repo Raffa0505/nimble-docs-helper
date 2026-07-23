@@ -28,6 +28,8 @@ export function AnnotationLayer({
   pageHeightPt,
   tool,
   highlightColor,
+  inkColor,
+  inkSize,
   annotations,
   textLayerEl,
   onAdd,
@@ -36,6 +38,7 @@ export function AnnotationLayer({
 }: Props) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [openNote, setOpenNote] = useState<string | null>(null);
+  const [drawingPoints, setDrawingPoints] = useState<{ x: number; y: number }[] | null>(null);
 
   const scale = heightPx / pageHeightPt;
 
