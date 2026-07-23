@@ -36,6 +36,7 @@ export function AnnotationLayer({
   onAdd,
   onUpdate,
   onDelete,
+  onToolConsumed,
 }: Props) {
   const rootRef = useRef<HTMLDivElement | null>(null);
   const [openNote, setOpenNote] = useState<string | null>(null);
