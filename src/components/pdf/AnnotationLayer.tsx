@@ -106,7 +106,95 @@ export function AnnotationLayer({
     }
   };
 
-  const overlayInteractive = tool === "note" || tool === "text";
+  const overlayInteractive =
+    tool === "note" || tool === "text" || tool === "draw" || tool === "eraser";
+
+  const posFromEvent = (e: React.PointerEvent) => {
+    const rect = (e.currentTarget as HTMLElement).getBoundingClientRect();
+    return {
+      x: (e.clientX - rect.left) / rect.width,
+      y: (e.clientY - rect.top) / rect.height,
+    };
+  };
+
+  const distToSegment = (
+    p: { x: number; y: number },
+    a: { x: number; y: number },
+    b: { x: number; y: number },
+  ) => {
+    const dx = b.x - a.x;
+    const dy = b.y - a.y;
+    const len2 = dx * dx + dy * dy;
+    if (len2 === 0) return Math.hypot(p.x - a.x, p.y - a.y);
+    let t = ((p.x - a.x) * dx + (p.y - a.y) * dy) / len2;
+    t = Math.max(0, Math.min(1, t));
+    return Math.hypot(p.x - (a.x + t * dx), p.y - (a.y + t * dy));
+  };
+
+  const eraseAt = (p: { x: number; y: number }) => {
+    const threshold = 0.012; // ~1.2% of page dimension
+    for (const a of annotations) {
+      if (a.type !== "ink") continue;
+      for (let i = 0; i < a.points.length - 1; i++) {
+        if (distToSegment(p, a.points[i], a.points[i + 1]) < threshold) {
+          onDelete(a.id);
+          break;
+        }
+      }
+    }
+  };
+
+  const handlePointerDown = (e: React.PointerEvent) => {
+    if (tool === "draw") {
+      if (e.target !== e.currentTarget) return;
+      e.preventDefault();
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+      setDrawingPoints([posFromEvent(e)]);
+    } else if (tool === "eraser") {
+      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+      eraseAt(posFromEvent(e));
+    }
+  };
+
+  const handlePointerMove = (e: React.PointerEvent) => {
+    if (tool === "draw" && drawingPoints) {
+      setDrawingPoints((prev) => (prev ? [...prev, posFromEvent(e)] : prev));
+    } else if (tool === "eraser" && e.buttons === 1) {
+      eraseAt(posFromEvent(e));
+    }
+  };
+
+  const handlePointerUp = (e: React.PointerEvent) => {
+    if (tool === "draw" && drawingPoints) {
+      try {
+        (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+      } catch {
+        /* noop */
+      }
+      if (drawingPoints.length >= 2) {
+        onAdd({
+          id: newId(),
+          page: pageNumber,
+          type: "ink",
+          color: inkColor,
+          size: inkSize,
+          points: drawingPoints,
+        });
+      }
+      setDrawingPoints(null);
+    }
+  };
+
+  const cursorFor =
+    tool === "note"
+      ? "copy"
+      : tool === "text"
+        ? "text"
+        : tool === "draw"
+          ? "crosshair"
+          : tool === "eraser"
+            ? "cell"
+            : "default";
 
   return (
     <div
@@ -116,10 +204,16 @@ export function AnnotationLayer({
         width: widthPx,
         height: heightPx,
         pointerEvents: overlayInteractive ? "auto" : "none",
-        cursor: tool === "note" ? "copy" : tool === "text" ? "text" : "default",
+        cursor: cursorFor,
+        touchAction: tool === "draw" || tool === "eraser" ? "none" : undefined,
       }}
       onClick={handleLayerClick}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
     >
+
       {annotations.map((a) => {
         if (a.type === "highlight") {
           const color = HIGHLIGHT_COLORS[a.color].css;
