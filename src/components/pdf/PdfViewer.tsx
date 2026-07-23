@@ -656,6 +656,107 @@ export function PdfViewer({
             >
               <Type className="h-4 w-4" />
             </button>
+            {/* Freehand drawing (pen + eraser + colors) */}
+            <div className="relative">
+              <button
+                onClick={() => {
+                  setPanMode(false);
+                  setDrawMenuOpen((v) => !v);
+                  setAnnTool((t) =>
+                    t === "draw" || t === "eraser" ? t : "draw",
+                  );
+                }}
+                title="Disegno a mano libera"
+                className={`p-2 rounded-md hover:bg-accent text-toolbar-foreground ${
+                  annTool === "draw" || annTool === "eraser"
+                    ? "bg-accent text-primary"
+                    : ""
+                }`}
+                aria-label="Disegno a mano libera"
+                aria-pressed={annTool === "draw" || annTool === "eraser"}
+              >
+                <Pencil className="h-4 w-4" />
+              </button>
+              {drawMenuOpen && (
+                <>
+                  <div
+                    className="fixed inset-0 z-10"
+                    onClick={() => setDrawMenuOpen(false)}
+                  />
+                  <div
+                    className="absolute z-20 top-full left-1/2 -translate-x-1/2 mt-1 w-56 rounded-md border border-border bg-popover text-popover-foreground shadow-xl p-3 space-y-3"
+                    onClick={(e) => e.stopPropagation()}
+                  >
+                    <div className="flex gap-2">
+                      <button
+                        onClick={() => setAnnTool("draw")}
+                        className={`flex-1 flex items-center justify-center gap-1.5 h-8 rounded-md text-xs font-medium border ${
+                          annTool === "draw"
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border hover:bg-accent"
+                        }`}
+                      >
+                        <Pencil className="h-3.5 w-3.5" />
+                        Penna
+                      </button>
+                      <button
+                        onClick={() => setAnnTool("eraser")}
+                        className={`flex-1 flex items-center justify-center gap-1.5 h-8 rounded-md text-xs font-medium border ${
+                          annTool === "eraser"
+                            ? "border-primary bg-primary/10 text-primary"
+                            : "border-border hover:bg-accent"
+                        }`}
+                      >
+                        <Eraser className="h-3.5 w-3.5" />
+                        Gomma
+                      </button>
+                    </div>
+                    <div>
+                      <div className="text-[11px] uppercase tracking-wide text-muted-foreground mb-1.5">
+                        Colore
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {(Object.keys(INK_COLORS) as InkColor[]).map((c) => (
+                          <button
+                            key={c}
+                            onClick={() => {
+                              setInkColor(c);
+                              setAnnTool("draw");
+                            }}
+                            className={`h-6 w-6 rounded-full border transition-transform ${
+                              inkColor === c
+                                ? "ring-2 ring-primary ring-offset-2 ring-offset-popover scale-110"
+                                : "border-border hover:scale-110"
+                            }`}
+                            style={{ background: INK_COLORS[c].css }}
+                            aria-label={`Colore ${c}`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                    <div>
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-[11px] uppercase tracking-wide text-muted-foreground">
+                          Spessore
+                        </span>
+                        <span className="text-xs tabular-nums text-muted-foreground">
+                          {inkSize}pt
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min={1}
+                        max={12}
+                        step={1}
+                        value={inkSize}
+                        onChange={(e) => setInkSize(Number(e.target.value))}
+                        className="w-full accent-primary"
+                      />
+                    </div>
+                  </div>
+                </>
+              )}
+            </div>
           </div>
           <div className="h-6 w-px bg-border mx-1" />
           <button
