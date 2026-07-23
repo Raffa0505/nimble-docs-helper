@@ -38,6 +38,7 @@ export function PdfPage({
   onAddAnnotation,
   onUpdateAnnotation,
   onDeleteAnnotation,
+  onToolConsumed,
 }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
