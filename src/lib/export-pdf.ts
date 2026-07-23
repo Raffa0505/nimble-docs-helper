@@ -37,6 +37,7 @@ export async function exportAnnotatedPdf(
     } else if (ann.type === "text") {
       const fs = ann.fontSize;
       const lines = wrapText(ann.text, font, fs, ann.w * pw);
+      const textRgb = ann.color ? INK_COLORS[ann.color].rgb : [0, 0, 0];
       let yTop = ann.y * ph;
       for (const line of lines) {
         yTop += fs * 1.2;
@@ -45,7 +46,7 @@ export async function exportAnnotatedPdf(
           y: ph - yTop,
           size: fs,
           font,
-          color: rgb(0, 0, 0),
+          color: rgb(textRgb[0], textRgb[1], textRgb[2]),
         });
       }
     } else if (ann.type === "note") {
