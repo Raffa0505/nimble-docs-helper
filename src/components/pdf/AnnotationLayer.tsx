@@ -375,19 +375,27 @@ function TextAnnotation({
   const [editing, setEditing] = useState(false);
   const [dragging, setDragging] = useState(false);
   const fontPx = a.fontSize * scale;
+  const wrapRef = useRef<HTMLDivElement | null>(null);
+
+  const getPageRect = () => {
+    // annotation layer is the parent; the page wrapper is its parent.
+    const layer = wrapRef.current?.parentElement;
+    return (layer ?? wrapRef.current)?.getBoundingClientRect();
+  };
 
   const handleDragStart = (e: React.PointerEvent<HTMLDivElement>) => {
     if (editing) return;
-    if ((e.target as HTMLElement).closest("button")) return;
-    const container = (e.currentTarget as HTMLElement).parentElement?.parentElement;
-    if (!container) return;
-    const parentRect = container.getBoundingClientRect();
+    if ((e.target as HTMLElement).closest("[data-role='resize'],[data-role='delete']")) return;
+    const parentRect = getPageRect();
+    if (!parentRect) return;
+    e.stopPropagation();
+    e.preventDefault();
+    (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
     const startX = e.clientX;
     const startY = e.clientY;
     const startAx = a.x;
     const startAy = a.y;
     setDragging(true);
-    e.preventDefault();
 
     const onMove = (ev: PointerEvent) => {
       const dx = (ev.clientX - startX) / parentRect.width;
@@ -405,8 +413,35 @@ function TextAnnotation({
     window.addEventListener("pointerup", onUp);
   };
 
+  const handleResizeStart = (e: React.PointerEvent<HTMLDivElement>) => {
+    e.stopPropagation();
+    e.preventDefault();
+    const parentRect = getPageRect();
+    if (!parentRect) return;
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const startW = a.w;
+    const startFont = a.fontSize;
+
+    const onMove = (ev: PointerEvent) => {
+      const dw = (ev.clientX - startX) / parentRect.width;
+      const nw = Math.max(0.05, Math.min(1 - a.x, startW + dw));
+      // Scale font size vertically; feels natural for a text box.
+      const dfy = (ev.clientY - startY) / scale;
+      const nf = Math.max(8, Math.min(96, startFont + dfy * 0.5));
+      onUpdate({ w: nw, fontSize: nf });
+    };
+    const onUp = () => {
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+  };
+
   return (
     <div
+      ref={wrapRef}
       className="absolute group"
       style={{
         left: `${a.x * 100}%`,
@@ -414,6 +449,7 @@ function TextAnnotation({
         width: `${a.w * 100}%`,
         pointerEvents: "auto",
         cursor: editing ? "text" : dragging ? "grabbing" : "grab",
+        touchAction: "none",
       }}
       onClick={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
@@ -425,6 +461,7 @@ function TextAnnotation({
           value={a.text}
           onChange={(e) => onUpdate({ text: e.target.value })}
           onBlur={() => setEditing(false)}
+          onPointerDown={(e) => e.stopPropagation()}
           style={{ fontSize: fontPx, lineHeight: 1.2 }}
           className="w-full min-h-[2em] p-1 border border-primary/60 bg-background/95 text-foreground rounded-sm resize-none focus:outline-none focus:ring-1 focus:ring-ring"
         />
@@ -432,14 +469,27 @@ function TextAnnotation({
         <div
           onDoubleClick={() => setEditing(true)}
           style={{ fontSize: fontPx, lineHeight: 1.2 }}
-          className="whitespace-pre-wrap px-1 py-0.5 rounded-sm border border-transparent hover:border-primary/40 hover:bg-primary/5 text-black select-none"
-          title="Trascina per spostare · Doppio clic per modificare"
+          className="whitespace-pre-wrap px-1 py-0.5 rounded-sm border border-transparent group-hover:border-primary/50 group-hover:bg-primary/5 text-black select-none"
+          title="Trascina per spostare · Doppio clic per modificare · Trascina l'angolo per ridimensionare"
         >
-          {a.text}
+          {a.text || " "}
         </div>
       )}
+      {/* Resize handle (bottom-right) */}
+      <div
+        data-role="resize"
+        onPointerDown={handleResizeStart}
+        className="absolute -bottom-1 -right-1 h-3 w-3 rounded-sm bg-primary border border-background opacity-0 group-hover:opacity-100 transition-opacity"
+        style={{ cursor: "nwse-resize" }}
+        title="Trascina per ridimensionare"
+      />
       <button
-        onClick={onDelete}
+        data-role="delete"
+        onPointerDown={(e) => e.stopPropagation()}
+        onClick={(e) => {
+          e.stopPropagation();
+          onDelete();
+        }}
         className="absolute -top-2 -right-2 h-5 w-5 rounded-full bg-destructive text-destructive-foreground opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center shadow"
         title="Elimina"
       >
