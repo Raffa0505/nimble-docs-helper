@@ -40,8 +40,8 @@ import { PdfThumbnail } from "./PdfThumbnail";
 import { PdfOutline } from "./PdfOutline";
 import { RecentsAndFavorites } from "./RecentsAndFavorites";
 import { PdfOrganizeGrid } from "./PdfOrganizeGrid";
-import type { Annotation, HighlightColor, Tool } from "@/lib/annotations";
-import { HIGHLIGHT_COLORS } from "@/lib/annotations";
+import type { Annotation, HighlightColor, InkColor, Tool } from "@/lib/annotations";
+import { HIGHLIGHT_COLORS, INK_COLORS } from "@/lib/annotations";
 import { exportAnnotatedPdf } from "@/lib/export-pdf";
 import {
   recordOpen,
