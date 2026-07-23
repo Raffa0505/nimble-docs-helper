@@ -105,6 +105,9 @@ export function AnnotationLayer({
         text: "Testo",
         fontSize: 14,
       });
+      // Auto-switch back to select so the user can immediately move/resize the box
+      // without accidentally creating another one on the next click.
+      onToolConsumed?.();
     }
   };
 
