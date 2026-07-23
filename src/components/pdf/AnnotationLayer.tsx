@@ -3,6 +3,9 @@ import { StickyNote, Trash2, X } from "lucide-react";
 import type { Annotation, HighlightColor, InkColor, NormRect, Tool } from "@/lib/annotations";
 import { HIGHLIGHT_COLORS, INK_COLORS, newId } from "@/lib/annotations";
 
+const TEXT_FONT_SIZES = [12, 14, 16, 20, 24, 32] as const;
+const TEXT_COLORS: InkColor[] = ["black", "red", "blue", "green", "yellow"];
+
 
 interface Props {
   pageNumber: number;
