@@ -13,6 +13,16 @@ export const HIGHLIGHT_COLORS: Record<HighlightColor, { css: string; rgb: [numbe
 
 export type NormRect = { x: number; y: number; w: number; h: number };
 
+export type InkColor = "black" | "red" | "blue" | "green" | "yellow";
+
+export const INK_COLORS: Record<InkColor, { css: string; rgb: [number, number, number] }> = {
+  black: { css: "#111111", rgb: [0.07, 0.07, 0.07] },
+  red: { css: "#e11d48", rgb: [0.88, 0.11, 0.28] },
+  blue: { css: "#2563eb", rgb: [0.15, 0.39, 0.92] },
+  green: { css: "#16a34a", rgb: [0.09, 0.64, 0.29] },
+  yellow: { css: "#eab308", rgb: [0.92, 0.7, 0.03] },
+};
+
 export type Annotation =
   | {
       id: string;
@@ -38,9 +48,18 @@ export type Annotation =
       w: number;
       text: string;
       fontSize: number; // in PDF points (unscaled)
+    }
+  | {
+      id: string;
+      page: number;
+      type: "ink";
+      color: InkColor;
+      size: number; // stroke width in PDF points (unscaled)
+      // Points normalized 0..1 relative to the page (top-left origin).
+      points: { x: number; y: number }[];
     };
 
-export type Tool = "select" | "pan" | "highlight" | "note" | "text";
+export type Tool = "select" | "pan" | "highlight" | "note" | "text" | "draw" | "eraser";
 
 export function newId() {
   return `a_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`;
