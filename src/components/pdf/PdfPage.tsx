@@ -19,6 +19,7 @@ interface Props {
   onAddAnnotation: (a: Annotation) => void;
   onUpdateAnnotation: (id: string, patch: Partial<Annotation>) => void;
   onDeleteAnnotation: (id: string) => void;
+  onToolConsumed?: () => void;
 }
 
 export function PdfPage({
@@ -37,6 +38,7 @@ export function PdfPage({
   onAddAnnotation,
   onUpdateAnnotation,
   onDeleteAnnotation,
+  onToolConsumed,
 }: Props) {
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
@@ -175,6 +177,7 @@ export function PdfPage({
             onAdd={onAddAnnotation}
             onUpdate={onUpdateAnnotation}
             onDelete={onDeleteAnnotation}
+            onToolConsumed={onToolConsumed}
           />
         )}
       </div>
