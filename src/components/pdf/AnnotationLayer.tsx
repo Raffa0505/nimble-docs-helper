@@ -474,7 +474,7 @@ function TextAnnotation({
             onBlur={() => setEditing(false)}
             onPointerDown={(e) => e.stopPropagation()}
             style={{ fontSize: fontPx, lineHeight: 1.2, color: textColorCss }}
-            className="w-full min-h-[2em] p-1 border border-primary/60 bg-background/95 rounded-sm resize-none focus:outline-none focus:ring-1 focus:ring-ring"
+            className="w-full min-h-[2em] p-1 border border-primary/60 bg-transparent rounded-sm resize-none focus:outline-none focus:ring-1 focus:ring-ring"
           />
           <div
             data-role="menu"
