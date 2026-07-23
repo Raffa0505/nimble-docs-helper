@@ -368,7 +368,37 @@ function TextAnnotation({
   onDelete: () => void;
 }) {
   const [editing, setEditing] = useState(false);
+  const [dragging, setDragging] = useState(false);
   const fontPx = a.fontSize * scale;
+
+  const handleDragStart = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (editing) return;
+    if ((e.target as HTMLElement).closest("button")) return;
+    const container = (e.currentTarget as HTMLElement).parentElement?.parentElement;
+    if (!container) return;
+    const parentRect = container.getBoundingClientRect();
+    const startX = e.clientX;
+    const startY = e.clientY;
+    const startAx = a.x;
+    const startAy = a.y;
+    setDragging(true);
+    e.preventDefault();
+
+    const onMove = (ev: PointerEvent) => {
+      const dx = (ev.clientX - startX) / parentRect.width;
+      const dy = (ev.clientY - startY) / parentRect.height;
+      const nx = Math.max(0, Math.min(1 - a.w, startAx + dx));
+      const ny = Math.max(0, Math.min(0.999, startAy + dy));
+      onUpdate({ x: nx, y: ny });
+    };
+    const onUp = () => {
+      setDragging(false);
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerup", onUp);
+    };
+    window.addEventListener("pointermove", onMove);
+    window.addEventListener("pointerup", onUp);
+  };
 
   return (
     <div
@@ -378,9 +408,11 @@ function TextAnnotation({
         top: `${a.y * 100}%`,
         width: `${a.w * 100}%`,
         pointerEvents: "auto",
+        cursor: editing ? "text" : dragging ? "grabbing" : "grab",
       }}
       onClick={(e) => e.stopPropagation()}
       onMouseDown={(e) => e.stopPropagation()}
+      onPointerDown={handleDragStart}
     >
       {editing ? (
         <textarea
@@ -395,8 +427,8 @@ function TextAnnotation({
         <div
           onDoubleClick={() => setEditing(true)}
           style={{ fontSize: fontPx, lineHeight: 1.2 }}
-          className="whitespace-pre-wrap px-1 py-0.5 rounded-sm border border-transparent hover:border-primary/40 hover:bg-primary/5 text-black cursor-text"
-          title="Doppio clic per modificare"
+          className="whitespace-pre-wrap px-1 py-0.5 rounded-sm border border-transparent hover:border-primary/40 hover:bg-primary/5 text-black select-none"
+          title="Trascina per spostare · Doppio clic per modificare"
         >
           {a.text}
         </div>
