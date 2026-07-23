@@ -470,6 +470,7 @@ function TextAnnotation({
           <textarea
             autoFocus
             value={a.text}
+            placeholder="Scrivi qui…"
             onChange={(e) => onUpdate({ text: e.target.value })}
             onBlur={(e) => {
               const next = e.relatedTarget as HTMLElement | null;
@@ -478,7 +479,7 @@ function TextAnnotation({
             }}
             onPointerDown={(e) => e.stopPropagation()}
             style={{ fontSize: fontPx, lineHeight: 1.2, color: textColorCss }}
-            className="w-full min-h-[2em] p-1 border border-primary/60 bg-transparent rounded-sm resize-none focus:outline-none focus:ring-1 focus:ring-ring"
+            className="w-full min-h-[2em] p-1 border border-primary/60 bg-transparent rounded-sm resize-none focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/60"
           />
           <div
             data-role="menu"
