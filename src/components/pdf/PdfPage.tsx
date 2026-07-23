@@ -168,6 +168,8 @@ export function PdfPage({
             pageHeightPt={dims.h}
             tool={tool}
             highlightColor={highlightColor}
+            inkColor={inkColor}
+            inkSize={inkSize}
             annotations={annotations}
             textLayerEl={textLayerRef.current}
             onAdd={onAddAnnotation}
