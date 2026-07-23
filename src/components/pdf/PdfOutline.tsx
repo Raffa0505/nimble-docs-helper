@@ -15,9 +15,28 @@ interface Props {
 
 export function PdfOutline({ pdf, onNavigate }: Props) {
   const [outline, setOutline] = useState<OutlineItem[] | null>(null);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
-    pdf.getOutline().then((o) => setOutline(o as OutlineItem[] | null));
+    let cancelled = false;
+    setLoaded(false);
+    setOutline(null);
+    pdf
+      .getOutline()
+      .then((o) => {
+        if (cancelled) return;
+        setOutline((o as OutlineItem[] | null) ?? []);
+        setLoaded(true);
+      })
+      .catch((e) => {
+        console.error(e);
+        if (cancelled) return;
+        setOutline([]);
+        setLoaded(true);
+      });
+    return () => {
+      cancelled = true;
+    };
   }, [pdf]);
 
   const handleClick = async (dest: unknown) => {
@@ -35,10 +54,10 @@ export function PdfOutline({ pdf, onNavigate }: Props) {
     }
   };
 
-  if (outline === null) {
+  if (!loaded) {
     return <div className="p-4 text-xs text-muted-foreground">Caricamento indice…</div>;
   }
-  if (outline.length === 0) {
+  if (!outline || outline.length === 0) {
     return (
       <div className="p-4 text-xs text-muted-foreground">
         Nessun indice o segnalibro disponibile in questo documento.
