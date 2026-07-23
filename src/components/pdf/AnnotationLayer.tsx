@@ -19,6 +19,7 @@ interface Props {
   onAdd: (a: Annotation) => void;
   onUpdate: (id: string, patch: Partial<Annotation>) => void;
   onDelete: (id: string) => void;
+  onToolConsumed?: () => void;
 }
 
 export function AnnotationLayer({
