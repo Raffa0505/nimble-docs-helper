@@ -177,6 +177,7 @@ export function PdfPage({
             onAdd={onAddAnnotation}
             onUpdate={onUpdateAnnotation}
             onDelete={onDeleteAnnotation}
+            onToolConsumed={onToolConsumed}
           />
         )}
       </div>
