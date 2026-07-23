@@ -48,6 +48,7 @@ export type Annotation =
       w: number;
       text: string;
       fontSize: number; // in PDF points (unscaled)
+      color?: InkColor;
     }
   | {
       id: string;
