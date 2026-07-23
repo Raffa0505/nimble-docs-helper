@@ -158,7 +158,8 @@ export function AnnotationLayer({
 
   const handlePointerMove = (e: React.PointerEvent) => {
     if (tool === "draw" && drawingPoints) {
-      setDrawingPoints((prev) => (prev ? [...prev, posFromEvent(e)] : prev));
+      const p = posFromEvent(e);
+      setDrawingPoints((prev) => (prev ? [...prev, p] : prev));
     } else if (tool === "eraser" && e.buttons === 1) {
       eraseAt(posFromEvent(e));
     }
