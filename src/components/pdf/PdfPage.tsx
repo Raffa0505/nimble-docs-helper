@@ -31,6 +31,8 @@ export function PdfPage({
   registerRef,
   tool,
   highlightColor,
+  inkColor,
+  inkSize,
   annotations,
   onAddAnnotation,
   onUpdateAnnotation,
