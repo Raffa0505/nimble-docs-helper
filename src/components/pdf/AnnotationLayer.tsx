@@ -478,7 +478,13 @@ function TextAnnotation({
           />
           <div
             data-role="menu"
-            onMouseDown={(e) => e.preventDefault()}
+            onMouseDown={(e) => {
+              // Prevent the textarea from blurring (which would close this menu)
+              // when clicking chrome, but let native form controls (select/option)
+              // receive their own mousedown so the dropdown works.
+              const tag = (e.target as HTMLElement).tagName;
+              if (tag !== "SELECT" && tag !== "OPTION") e.preventDefault();
+            }}
             onPointerDown={(e) => e.stopPropagation()}
             className="absolute -top-11 left-0 z-30 flex items-center gap-2 rounded-md border border-border bg-popover text-popover-foreground shadow-xl px-2 py-1"
           >
