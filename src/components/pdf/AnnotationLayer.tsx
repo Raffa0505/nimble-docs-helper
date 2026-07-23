@@ -1,7 +1,8 @@
 import { useEffect, useRef, useState } from "react";
 import { StickyNote, Trash2, X } from "lucide-react";
-import type { Annotation, HighlightColor, NormRect, Tool } from "@/lib/annotations";
-import { HIGHLIGHT_COLORS, newId } from "@/lib/annotations";
+import type { Annotation, HighlightColor, InkColor, NormRect, Tool } from "@/lib/annotations";
+import { HIGHLIGHT_COLORS, INK_COLORS, newId } from "@/lib/annotations";
+
 
 interface Props {
   pageNumber: number;
