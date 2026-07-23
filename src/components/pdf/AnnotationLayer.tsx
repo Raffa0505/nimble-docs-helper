@@ -105,7 +105,7 @@ export function AnnotationLayer({
         x,
         y,
         w: 0.35,
-        text: "Testo",
+        text: "",
         fontSize: 14,
       });
       // Auto-switch back to select so the user can immediately move/resize the box
