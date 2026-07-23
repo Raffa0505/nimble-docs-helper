@@ -375,7 +375,7 @@ function TextAnnotation({
   onUpdate: (patch: Partial<Annotation>) => void;
   onDelete: () => void;
 }) {
-  const [editing, setEditing] = useState(false);
+  const [editing, setEditing] = useState(() => !a.text);
   const [dragging, setDragging] = useState(false);
   const fontPx = a.fontSize * scale;
   const wrapRef = useRef<HTMLDivElement | null>(null);
