@@ -1,6 +1,6 @@
 import { PDFDocument, StandardFonts, degrees, rgb } from "pdf-lib";
 import type { Annotation } from "./annotations";
-import { HIGHLIGHT_COLORS } from "./annotations";
+import { HIGHLIGHT_COLORS, INK_COLORS } from "./annotations";
 
 export async function exportAnnotatedPdf(
   originalBytes: ArrayBuffer,
