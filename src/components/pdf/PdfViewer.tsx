@@ -922,6 +922,7 @@ export function PdfViewer({
                   onAddAnnotation={addAnnotation}
                   onUpdateAnnotation={updateAnnotation}
                   onDeleteAnnotation={deleteAnnotation}
+                  onToolConsumed={() => setAnnTool("select")}
                 />
               ))}
             </div>
