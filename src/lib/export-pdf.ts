@@ -73,6 +73,20 @@ export async function exportAnnotatedPdf(
         });
         ly -= fs * 1.25;
       }
+    } else if (ann.type === "ink") {
+      const [r, g, b] = INK_COLORS[ann.color].rgb;
+      const strokeColor = rgb(r, g, b);
+      for (let i = 0; i < ann.points.length - 1; i++) {
+        const p1 = ann.points[i];
+        const p2 = ann.points[i + 1];
+        page.drawLine({
+          start: { x: p1.x * pw, y: ph - p1.y * ph },
+          end: { x: p2.x * pw, y: ph - p2.y * ph },
+          thickness: ann.size,
+          color: strokeColor,
+          lineCap: 1, // round
+        });
+      }
     }
   }
 
