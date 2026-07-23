@@ -28,6 +28,8 @@ import {
   RotateCw,
   RotateCcw,
   LayoutGrid,
+  Pencil,
+  Eraser,
 } from "lucide-react";
 
 import { loadPdfjs } from "@/lib/pdfjs-loader";
