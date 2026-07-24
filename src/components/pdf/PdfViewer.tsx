@@ -17,7 +17,7 @@ import {
   FileText,
   MousePointer2,
   Hand,
-  XCircle,
+  
   Highlighter,
   StickyNote,
   Type,
@@ -138,6 +138,15 @@ export function PdfViewer({
       setLoading(false);
     }
   }, []);
+
+  // Auto-open the initial file when provided (used by the tab system).
+  const initialLoadedRef = useRef(false);
+  useEffect(() => {
+    if (initialFile && !initialLoadedRef.current) {
+      initialLoadedRef.current = true;
+      void openFile(initialFile);
+    }
+  }, [initialFile, openFile]);
 
   const closeFile = useCallback(() => {
     setPdf(null);
