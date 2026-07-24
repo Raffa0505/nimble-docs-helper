@@ -955,27 +955,3 @@ function TopBar({
   );
 }
 
-function SplitButton({
-  splitActive,
-  onClick,
-}: {
-  splitActive: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      title={splitActive ? "Chiudi vista affiancata" : "Apri in parallelo"}
-      className={`h-8 px-2 rounded-md hover:bg-accent text-toolbar-foreground flex items-center gap-1.5 text-xs font-medium ${
-        splitActive ? "bg-accent text-primary" : ""
-      }`}
-      aria-label={splitActive ? "Chiudi vista affiancata" : "Apri in parallelo"}
-      aria-pressed={splitActive}
-    >
-      <Columns2 className="h-4 w-4" />
-      <span className="hidden md:inline">
-        {splitActive ? "Vista singola" : "Apri in parallelo"}
-      </span>
-    </button>
-  );
-}
