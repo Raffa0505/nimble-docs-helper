@@ -57,11 +57,9 @@ const MAX_SCALE = 4;
 const ZOOM_STEP = 0.1;
 
 export function PdfViewer({
-  onToggleSplit,
-  splitActive = false,
+  initialFile,
 }: {
-  onToggleSplit?: () => void;
-  splitActive?: boolean;
+  initialFile?: File;
 } = {}) {
   const { isDark, toggle: toggleTheme } = useTheme();
   const [pdf, setPdf] = useState<PDFDocumentProxy | null>(null);
@@ -427,11 +425,7 @@ export function PdfViewer({
           onToggleTheme={toggleTheme}
           fileName=""
           hasPdf={false}
-        >
-          {onToggleSplit && (
-            <SplitButton splitActive={splitActive} onClick={onToggleSplit} />
-          )}
-        </TopBar>
+        />
         {error && (
           <div className="bg-destructive/10 border-b border-destructive/20 text-destructive px-4 py-2 text-sm">
             {error}
@@ -457,12 +451,6 @@ export function PdfViewer({
     <div className="h-full flex flex-col bg-background overflow-hidden">
       <TopBar isDark={isDark} onToggleTheme={toggleTheme} fileName={fileName} hasPdf>
         <div className="flex items-center gap-1">
-          {onToggleSplit && (
-            <>
-              <SplitButton splitActive={splitActive} onClick={onToggleSplit} />
-              <div className="h-6 w-px bg-border mx-1" />
-            </>
-          )}
           <button
             onClick={handleToggleFavorite}
             disabled={!fileId}
@@ -793,16 +781,6 @@ export function PdfViewer({
             <Save className="h-4 w-4" />
             <span className="text-xs font-medium hidden sm:inline">Salva con nome</span>
           </button>
-          <div className="h-6 w-px bg-border mx-1" />
-          <button
-            onClick={closeFile}
-            title="Chiudi file"
-            className="p-2 rounded-md hover:bg-accent text-toolbar-foreground"
-            aria-label="Chiudi file"
-          >
-            <XCircle className="h-4 w-4" />
-          </button>
-
         </div>
       </TopBar>
 
