@@ -24,7 +24,7 @@ import {
   Download,
   Save,
   Star,
-  Columns2,
+  
   RotateCw,
   RotateCcw,
   LayoutGrid,
