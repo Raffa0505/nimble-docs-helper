@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { StickyNote, Trash2, X } from "lucide-react";
-import type { Annotation, HighlightColor, InkColor, NormRect, Tool } from "@/lib/annotations";
-import { HIGHLIGHT_COLORS, INK_COLORS, newId } from "@/lib/annotations";
+import type { Annotation, HighlightColor, InkColor, NormRect, TextFont, Tool } from "@/lib/annotations";
+import { HIGHLIGHT_COLORS, INK_COLORS, TEXT_FONTS, newId } from "@/lib/annotations";
 
 const TEXT_FONT_SIZES = [8, 9, 10, 11, 12, 14, 16, 18, 20, 22, 24, 26, 28, 36, 48, 72] as const;
 const TEXT_COLORS: InkColor[] = ["black", "red", "blue", "green", "yellow"];
@@ -90,6 +90,12 @@ export function AnnotationLayer({
   const handleLayerClick = (e: React.MouseEvent) => {
     if (tool !== "note" && tool !== "text") return;
     if (e.target !== e.currentTarget) return;
+    // Clicking outside an open text box just closes it instead of creating a new one.
+    const active = document.activeElement as HTMLElement | null;
+    if (tool === "text" && active && active.tagName === "TEXTAREA" && rootRef.current?.contains(active)) {
+      active.blur();
+      return;
+    }
     const rect = e.currentTarget.getBoundingClientRect();
     const x = (e.clientX - rect.left) / rect.width;
     const y = (e.clientY - rect.top) / rect.height;
@@ -448,6 +454,12 @@ function TextAnnotation({
   };
 
   const textColorCss = INK_COLORS[currentColor].css;
+  const textStyle: React.CSSProperties = {
+    fontSize: fontPx,
+    lineHeight: 1.2,
+    color: textColorCss,
+    fontFamily: TEXT_FONTS[a.font ?? "helvetica"].css,
+  };
 
   return (
     <div
@@ -478,8 +490,8 @@ function TextAnnotation({
               setEditing(false);
             }}
             onPointerDown={(e) => e.stopPropagation()}
-            style={{ fontSize: fontPx, lineHeight: 1.2, color: textColorCss }}
-            className="w-full min-h-[2em] p-1 border border-primary/60 bg-transparent rounded-sm resize-none focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/60"
+            style={{ ...textStyle, background: a.whiteBg ? "#ffffff" : "transparent" }}
+            className="w-full min-h-[2em] p-1 border border-primary/60 rounded-sm resize-none focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/60"
           />
           <div
             data-role="menu"
@@ -505,6 +517,26 @@ function TextAnnotation({
                 </option>
               ))}
             </select>
+            <select
+              value={a.font ?? "helvetica"}
+              onChange={(e) => onUpdate({ font: e.target.value as TextFont })}
+              className="h-7 text-xs rounded border border-input bg-background px-1 focus:outline-none focus:ring-1 focus:ring-ring"
+              title="Font"
+            >
+              {(Object.keys(TEXT_FONTS) as TextFont[]).map((f) => (
+                <option key={f} value={f}>
+                  {TEXT_FONTS[f].label}
+                </option>
+              ))}
+            </select>
+            <button
+              type="button"
+              onClick={() => onUpdate({ whiteBg: !a.whiteBg })}
+              className={`h-7 px-2 text-xs rounded border ${a.whiteBg ? "border-primary bg-primary/10 text-primary" : "border-input hover:bg-accent"}`}
+              title="Sfondo bianco: copri e riscrivi il testo esistente"
+            >
+              Copri
+            </button>
             <div className="flex items-center gap-1">
               {TEXT_COLORS.map((c) => (
                 <button
@@ -530,7 +562,7 @@ function TextAnnotation({
       ) : (
         <div
           onDoubleClick={() => setEditing(true)}
-          style={{ fontSize: fontPx, lineHeight: 1.2, color: textColorCss }}
+          style={{ ...textStyle, background: a.whiteBg ? "#ffffff" : undefined }}
           className="whitespace-pre-wrap px-1 py-0.5 rounded-sm border border-transparent group-hover:border-primary/50 group-hover:bg-primary/5 select-none"
           title="Clic per modificare · Trascina per spostare · Trascina l'angolo per ridimensionare"
         >
