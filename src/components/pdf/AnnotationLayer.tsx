@@ -104,6 +104,36 @@ export function AnnotationLayer({
       onAdd({ id, page: pageNumber, type: "note", x, y, text: "" });
       setOpenNote(id);
     } else {
+      // If the click lands on existing PDF text, open it for editing:
+      // cover the original line with white and pre-fill the box with its text.
+      const span = textLayerEl
+        ? (document
+            .elementsFromPoint(e.clientX, e.clientY)
+            .find(
+              (el) =>
+                el.tagName === "SPAN" &&
+                textLayerEl.contains(el) &&
+                (el.textContent || "").trim().length > 0,
+            ) as HTMLElement | undefined)
+        : undefined;
+      if (span) {
+        const s = span.getBoundingClientRect();
+        const pad = 2;
+        onAdd({
+          id: newId(),
+          page: pageNumber,
+          type: "text",
+          x: Math.max(0, (s.left - rect.left - pad) / rect.width),
+          y: Math.max(0, (s.top - rect.top - pad) / rect.height),
+          w: Math.min(1, (s.width + pad * 6) / rect.width),
+          text: span.textContent || "",
+          fontSize: Math.max(6, Math.round((s.height / scale) * 0.85)),
+          whiteBg: true,
+          coverH: (s.height + pad * 2) / rect.height,
+        });
+        onToolConsumed?.();
+        return;
+      }
       onAdd({
         id: newId(),
         page: pageNumber,
@@ -359,6 +389,7 @@ export function AnnotationLayer({
               key={a.id}
               a={a}
               scale={scale}
+              pageH={pageHeightPt}
               onUpdate={(patch) => onUpdate(a.id, patch)}
               onDelete={() => onDelete(a.id)}
             />
@@ -373,9 +404,11 @@ export function AnnotationLayer({
 function TextAnnotation({
   a,
   scale,
+  pageH,
   onUpdate,
   onDelete,
 }: {
+  pageH: number;
   a: Extract<Annotation, { type: "text" }>;
   scale: number;
   onUpdate: (patch: Partial<Annotation>) => void;
@@ -490,7 +523,7 @@ function TextAnnotation({
               setEditing(false);
             }}
             onPointerDown={(e) => e.stopPropagation()}
-            style={{ ...textStyle, background: a.whiteBg ? "#ffffff" : "transparent" }}
+            style={{ ...textStyle, background: a.whiteBg ? "#ffffff" : "transparent", minHeight: a.coverH ? `${a.coverH * scale * pageH}px` : undefined }}
             className="w-full min-h-[2em] p-1 border border-primary/60 rounded-sm resize-none focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/60"
           />
           <div
@@ -562,7 +595,7 @@ function TextAnnotation({
       ) : (
         <div
           onDoubleClick={() => setEditing(true)}
-          style={{ ...textStyle, background: a.whiteBg ? "#ffffff" : undefined }}
+          style={{ ...textStyle, background: a.whiteBg ? "#ffffff" : undefined, minHeight: a.coverH ? `${a.coverH * scale * pageH}px` : undefined }}
           className="whitespace-pre-wrap px-1 py-0.5 rounded-sm border border-transparent group-hover:border-primary/50 group-hover:bg-primary/5 select-none"
           title="Clic per modificare · Trascina per spostare · Trascina l'angolo per ridimensionare"
         >

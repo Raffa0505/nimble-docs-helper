@@ -59,6 +59,7 @@ export type Annotation =
       color?: InkColor;
       font?: TextFont;
       whiteBg?: boolean; // "cover & rewrite" mode
+      coverH?: number; // normalized height of the original text area being covered
 
     }
   | {

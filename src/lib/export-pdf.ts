@@ -44,13 +44,13 @@ export async function exportAnnotatedPdf(
       const tFont = fonts[ann.font ?? "helvetica"];
       const lines = wrapText(ann.text, tFont, fs, ann.w * pw);
       const textRgb = ann.color ? INK_COLORS[ann.color].rgb : [0, 0, 0];
-      if (ann.whiteBg && lines.length) {
-        const pad = 2;
+      if (ann.whiteBg && (lines.length || ann.coverH)) {
+        const h = Math.max(lines.length * fs * 1.2 + fs * 0.3, (ann.coverH ?? 0) * ph);
         page.drawRectangle({
-          x: ann.x * pw - pad,
-          y: ph - (ann.y * ph + lines.length * fs * 1.2 + fs * 0.3) - pad,
-          width: ann.w * pw + pad * 2,
-          height: lines.length * fs * 1.2 + fs * 0.3 + pad * 2,
+          x: ann.x * pw,
+          y: ph - ann.y * ph - h,
+          width: ann.w * pw,
+          height: h,
           color: rgb(1, 1, 1),
         });
       }
