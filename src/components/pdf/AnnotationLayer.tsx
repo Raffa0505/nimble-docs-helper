@@ -389,6 +389,7 @@ export function AnnotationLayer({
               key={a.id}
               a={a}
               scale={scale}
+              pageH={pageHeightPt}
               onUpdate={(patch) => onUpdate(a.id, patch)}
               onDelete={() => onDelete(a.id)}
             />
@@ -403,9 +404,11 @@ export function AnnotationLayer({
 function TextAnnotation({
   a,
   scale,
+  pageH,
   onUpdate,
   onDelete,
 }: {
+  pageH: number;
   a: Extract<Annotation, { type: "text" }>;
   scale: number;
   onUpdate: (patch: Partial<Annotation>) => void;
