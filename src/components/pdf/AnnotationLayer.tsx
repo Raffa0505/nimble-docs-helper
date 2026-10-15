@@ -104,6 +104,36 @@ export function AnnotationLayer({
       onAdd({ id, page: pageNumber, type: "note", x, y, text: "" });
       setOpenNote(id);
     } else {
+      // If the click lands on existing PDF text, open it for editing:
+      // cover the original line with white and pre-fill the box with its text.
+      const span = textLayerEl
+        ? (document
+            .elementsFromPoint(e.clientX, e.clientY)
+            .find(
+              (el) =>
+                el.tagName === "SPAN" &&
+                textLayerEl.contains(el) &&
+                (el.textContent || "").trim().length > 0,
+            ) as HTMLElement | undefined)
+        : undefined;
+      if (span) {
+        const s = span.getBoundingClientRect();
+        const pad = 2;
+        onAdd({
+          id: newId(),
+          page: pageNumber,
+          type: "text",
+          x: Math.max(0, (s.left - rect.left - pad) / rect.width),
+          y: Math.max(0, (s.top - rect.top - pad) / rect.height),
+          w: Math.min(1, (s.width + pad * 6) / rect.width),
+          text: span.textContent || "",
+          fontSize: Math.max(6, Math.round((s.height / scale) * 0.85)),
+          whiteBg: true,
+          coverH: (s.height + pad * 2) / rect.height,
+        });
+        onToolConsumed?.();
+        return;
+      }
       onAdd({
         id: newId(),
         page: pageNumber,
