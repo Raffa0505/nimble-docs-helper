@@ -13,6 +13,14 @@ export const HIGHLIGHT_COLORS: Record<HighlightColor, { css: string; rgb: [numbe
 
 export type NormRect = { x: number; y: number; w: number; h: number };
 
+export type TextFont = "helvetica" | "times" | "courier";
+
+export const TEXT_FONTS: Record<TextFont, { label: string; css: string }> = {
+  helvetica: { label: "Helvetica", css: "Helvetica, Arial, sans-serif" },
+  times: { label: "Times Roman", css: "'Times New Roman', Times, serif" },
+  courier: { label: "Courier", css: "'Courier New', Courier, monospace" },
+};
+
 export type InkColor = "black" | "red" | "blue" | "green" | "yellow";
 
 export const INK_COLORS: Record<InkColor, { css: string; rgb: [number, number, number] }> = {
@@ -49,6 +57,9 @@ export type Annotation =
       text: string;
       fontSize: number; // in PDF points (unscaled)
       color?: InkColor;
+      font?: TextFont;
+      whiteBg?: boolean; // "cover & rewrite" mode
+
     }
   | {
       id: string;

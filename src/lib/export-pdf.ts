@@ -14,6 +14,11 @@ export async function exportAnnotatedPdf(
 ): Promise<void> {
   const src = await PDFDocument.load(originalBytes);
   const font = await src.embedFont(StandardFonts.Helvetica);
+  const fonts = {
+    helvetica: font,
+    times: await src.embedFont(StandardFonts.TimesRoman),
+    courier: await src.embedFont(StandardFonts.Courier),
+  };
   const srcPages = src.getPages();
 
   // Draw annotations onto the source doc first so copyPages carries them.
@@ -36,8 +41,19 @@ export async function exportAnnotatedPdf(
       }
     } else if (ann.type === "text") {
       const fs = ann.fontSize;
-      const lines = wrapText(ann.text, font, fs, ann.w * pw);
+      const tFont = fonts[ann.font ?? "helvetica"];
+      const lines = wrapText(ann.text, tFont, fs, ann.w * pw);
       const textRgb = ann.color ? INK_COLORS[ann.color].rgb : [0, 0, 0];
+      if (ann.whiteBg && lines.length) {
+        const pad = 2;
+        page.drawRectangle({
+          x: ann.x * pw - pad,
+          y: ph - (ann.y * ph + lines.length * fs * 1.2 + fs * 0.3) - pad,
+          width: ann.w * pw + pad * 2,
+          height: lines.length * fs * 1.2 + fs * 0.3 + pad * 2,
+          color: rgb(1, 1, 1),
+        });
+      }
       let yTop = ann.y * ph;
       for (const line of lines) {
         yTop += fs * 1.2;
@@ -45,7 +61,7 @@ export async function exportAnnotatedPdf(
           x: ann.x * pw,
           y: ph - yTop,
           size: fs,
-          font,
+          font: tFont,
           color: rgb(textRgb[0], textRgb[1], textRgb[2]),
         });
       }

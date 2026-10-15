@@ -640,18 +640,31 @@ export function PdfViewer({
               <StickyNote className="h-4 w-4" />
             </button>
             <button
+              role="switch"
               onClick={() => {
                 setPanMode(false);
                 setAnnTool((t) => (t === "text" ? "select" : "text"));
               }}
-              title="Inserisci testo · clicca dove vuoi scrivere"
-              className={`p-2 rounded-md hover:bg-accent text-toolbar-foreground ${
+              title="Modalità Modifica · clicca sul PDF per aggiungere testo"
+              className={`flex items-center gap-2 h-8 px-2 rounded-md hover:bg-accent text-xs font-medium text-toolbar-foreground ${
                 annTool === "text" ? "bg-accent text-primary" : ""
               }`}
-              aria-label="Inserisci testo"
-              aria-pressed={annTool === "text"}
+              aria-label="Modalità Modifica"
+              aria-checked={annTool === "text"}
             >
               <Type className="h-4 w-4" />
+              <span className="hidden md:inline">Modifica</span>
+              <span
+                className={`relative inline-block h-4 w-7 rounded-full transition-colors ${
+                  annTool === "text" ? "bg-primary" : "bg-muted"
+                }`}
+              >
+                <span
+                  className={`absolute top-0.5 h-3 w-3 rounded-full bg-background transition-all ${
+                    annTool === "text" ? "left-3.5" : "left-0.5"
+                  }`}
+                />
+              </span>
             </button>
             {/* Freehand drawing (pen + eraser + colors) */}
             <div className="relative">
@@ -765,6 +778,15 @@ export function PdfViewer({
             aria-label="Cerca nel documento"
           >
             <Search className="h-4 w-4" />
+          </button>
+          <button
+            onClick={handleExport}
+            disabled={!originalBytes || exporting}
+            title="Salva PDF con tutte le modifiche"
+            className="h-8 px-3 mx-1 rounded-md bg-primary text-primary-foreground text-xs font-medium hover:bg-primary/90 disabled:opacity-40 flex items-center gap-1.5"
+          >
+            <Save className="h-3.5 w-3.5" />
+            Salva PDF
           </button>
           <button
             onClick={handleExport}
@@ -909,7 +931,7 @@ export function PdfViewer({
                   onAddAnnotation={addAnnotation}
                   onUpdateAnnotation={updateAnnotation}
                   onDeleteAnnotation={deleteAnnotation}
-                  onToolConsumed={() => setAnnTool("select")}
+                  onToolConsumed={() => setAnnTool((t) => (t === "text" ? t : "select"))}
                 />
               ))}
             </div>
