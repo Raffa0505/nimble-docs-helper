@@ -520,7 +520,7 @@ function TextAnnotation({
               setEditing(false);
             }}
             onPointerDown={(e) => e.stopPropagation()}
-            style={{ ...textStyle, background: a.whiteBg ? "#ffffff" : "transparent" }}
+            style={{ ...textStyle, background: a.whiteBg ? "#ffffff" : "transparent", minHeight: a.coverH ? `${a.coverH * scale * pageH}px` : undefined }}
             className="w-full min-h-[2em] p-1 border border-primary/60 rounded-sm resize-none focus:outline-none focus:ring-1 focus:ring-ring placeholder:text-muted-foreground/60"
           />
           <div
@@ -592,7 +592,7 @@ function TextAnnotation({
       ) : (
         <div
           onDoubleClick={() => setEditing(true)}
-          style={{ ...textStyle, background: a.whiteBg ? "#ffffff" : undefined }}
+          style={{ ...textStyle, background: a.whiteBg ? "#ffffff" : undefined, minHeight: a.coverH ? `${a.coverH * scale * pageH}px` : undefined }}
           className="whitespace-pre-wrap px-1 py-0.5 rounded-sm border border-transparent group-hover:border-primary/50 group-hover:bg-primary/5 select-none"
           title="Clic per modificare · Trascina per spostare · Trascina l'angolo per ridimensionare"
         >
